@@ -25,6 +25,7 @@
     "mongoose-transactions": "^2.0.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.3",
     "@types/morgan": "^1.9.10",
     "colors": "^1.4.0",

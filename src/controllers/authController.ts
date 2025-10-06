@@ -26,5 +26,19 @@ export const createUser = AsyncHandler(async (req: Request, res: Response, next:
 
     const user = await Users.create(req.body)
 
-    res.status(200).json(new SuccessResponse(true, "User created successfully", user))
+    // create tokens (access and refresh tokens)
+    var tokens = await user.getSignedTokens();
+
+    // add refresh token to cookie
+    res.cookie('refreshToken', tokens.refreshToken, {
+        //httpOnly: false, 
+        //secure: false,
+        //sameSite: 'strict'
+    })
+
+
+    res.status(200).json(new SuccessResponse(true, "User created successfully", {
+        user,
+        token: tokens.accessToken
+    }))
 })

@@ -1,5 +1,13 @@
 import mongoose from 'mongoose';
 import Joi from 'joi'
+const bcrypt = require('bcrypt')
+
+// shared
+import { Encryption } from '../shared/utils';
+import Token from '../shared/utils/token'
+
+const { encryptData } = Encryption
+const { generateAccessToken, generateRefreshToken } = Token
 
 const userSchema = new mongoose.Schema({
     email: {
@@ -20,7 +28,25 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     }
-}, { timestamps: true });
+}, {
+    timestamps: true,
+    methods: {
+        // sign JWT token and return it
+        async getSignedTokens() {
+            const accessToken = await generateAccessToken({ id: this._id, userType: this.userType })
+            const refreshToken = await generateRefreshToken({ id: this._id, userType: this.userType })
+            return {
+                accessToken,
+                refreshToken
+            }
+        },
+
+        // compare the provided password with hashed password in database
+        async matchPassword(enteredPassword) {
+            return await bcrypt.compare(enteredPassword, this.password)
+        }
+    }
+});
 
 const userSchemaValidation = (user: any) => {
     const schema = Joi.object({
@@ -44,6 +70,12 @@ const userSchemaValidation = (user: any) => {
     })
     return schema.validate(user)
 }
+
+// encrypt password before save
+userSchema.pre('save', async function (next) {
+    this.password = await encryptData(this.password)
+    next();
+})
 
 const Users = mongoose.model("User", userSchema);
 
