@@ -1,16 +1,34 @@
-import express, {Request, Response} from 'express'
+import express, { Request, Response } from 'express'
 import dotenv from 'dotenv'
-import colors from 'colors';
+import morgan from 'morgan'
 import connectDB from './config/db'
 
-dotenv.config({path: "./.env.development"})
+dotenv.config({ path: "./.env.development" })
 
 // initialize database connection
 connectDB(process.env.MONGO_URI || "")
 
 const app = express();
+app.use(express.json())
 
-console.log(process.env.MONGO_URI)
+// development logging middleware
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'))
+}
+
+// import routes
+import categoris from './routes/categories'
+import auth from './routes/auth'
+
+// import middleware
+import errorHandler from './middleware/errorHandler'
+
+// mount routes
+app.use('/api/v1/categories', categoris)
+app.use('/api/v1/auth', auth)
+
+// register middleware
+app.use(errorHandler)
 
 app.get("/", (req: Request, res: Response) => {
     res.send("server is running")
