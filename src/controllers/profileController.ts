@@ -52,3 +52,24 @@ export const createProfile = AsyncHandler(async (req: Request, res: Response, ne
 
     return res.status(200).json(new SuccessResponse(true, 'Profile has been created successfully', profile))
 })
+
+/* 
+    @desc       Update profile
+    @route      PUT /api/v1/profiles/id
+    @access     Private
+*/
+export const updateProfile = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    // check for validation errors
+    const { error } = profileSchemaValidation(req.body)
+    if (error) {
+        return next(new ErrorResponse(400, error.details[0].message))
+    }
+
+    // check whether profile exists with the given user Id
+    let profile = await Profile.findByIdAndUpdate(req.params.id, req.body)
+    if (!profile) {
+        return next(new ErrorResponse(404, "Unable to locate profile"))
+    }
+
+    return res.status(200).json(new SuccessResponse(true, "Profile was updated successfully", profile))
+})
