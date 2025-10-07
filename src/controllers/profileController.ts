@@ -73,3 +73,19 @@ export const updateProfile = AsyncHandler(async (req: Request, res: Response, ne
 
     return res.status(200).json(new SuccessResponse(true, "Profile was updated successfully", profile))
 })
+
+
+/* 
+    @desc       Delete profile
+    @route      DELETE /api/v1/profiles/id
+    @access     Private
+*/
+export const deleteProfile = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    // check if the profile available with given profile id, if -> set isActive to false
+    const profile = await Profile.findByIdAndUpdate(req.params.id, { isActive: false })
+    if (!profile) {
+        return next(new ErrorResponse(404, 'Unable to locate profile'))
+    }
+
+    return res.status(200).json(new SuccessResponse(true, 'Profile has been set to delete', profile))
+})
