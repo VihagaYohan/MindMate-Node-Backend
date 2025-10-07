@@ -42,3 +42,19 @@ export const updateUserMood = AsyncHandler(async (req: Request, res: Response, n
     const updatedMood = await UserMood.findByIdAndUpdate(req.params.id, req.body)
     return res.status(200).json(new SuccessResponse(true, 'User mood has been updated successfully', updateUserMood))
 })
+
+/* 
+    @desc       Delete user mood
+    @routes     PUT /api/v1/user-mood/:id
+    @access     Private
+*/
+export const deleteUserMood = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    // check whether existing records exists
+    const isExists = await UserMood.findOne({ 'userId': req.params.id })
+    if (isExists) {
+        return next(new ErrorResponse(404, 'Unable to locat record'))
+    }
+
+    const updatedMood = await UserMood.findByIdAndUpdate(req.params.id, { "isActive": false })
+    return res.status(200).json(new SuccessResponse(true, `User mood with id ${req.params.id} has been deleted successfully`, null))
+})
