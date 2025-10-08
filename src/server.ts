@@ -21,6 +21,7 @@ import categoris from './routes/categories'
 import auth from './routes/auth'
 import profiles from './routes/profile'
 import contactPerson from './routes/contactPerson'
+import userMood from './routes/userMood'
 
 // import middleware
 import errorHandler from './middleware/errorHandler'
@@ -30,6 +31,7 @@ app.use('/api/v1/categories', categoris)
 app.use('/api/v1/auth', auth)
 app.use('/api/v1/profiles', profiles)
 app.use('/api/v1/contact-persons', contactPerson)
+app.use('/api/v1/user-moods', userMood)
 
 // register middleware
 app.use(errorHandler)

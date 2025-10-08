@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import TokenPayload from '../../models/token'
 
 const generateAccessToken = async (payload: TokenPayload): Promise<string> => {
-    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: '15m' })
+    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: '7d' })
 }
 
 const generateRefreshToken = async (payload: TokenPayload): Promise<string> => {
