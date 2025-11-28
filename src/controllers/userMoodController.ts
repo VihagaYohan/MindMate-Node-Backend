@@ -3,6 +3,9 @@ import { AsyncHandler } from '../middleware'
 import { UserMoodSchema } from '../schemas'
 import { ErrorResponse, SuccessResponse } from '../shared/response'
 import { Types } from 'mongoose'
+import fetch from 'node-fetch'
+import mongoose from 'mongoose'
+
 
 const { UserMood, userMoodSchemaValidation } = UserMoodSchema
 
@@ -62,15 +65,38 @@ export const getAllUserMoods = AsyncHandler(async (req: Request, res: Response, 
     @access     Private
 */
 export const addUserMood = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    // check for validation errors
-    const { error } = userMoodSchemaValidation(req.body)
-    if (error) {
-        return next(new ErrorResponse(400, error.details[0].message))
+    const { error } = userMoodSchemaValidation(req.body);
+    if (error) return next(new ErrorResponse(400, error.details[0].message));
+
+    // Create mood entry first
+    let userMood: any = await UserMood.create({ ...req.body, userId: req.user.id });
+
+    // Call prediction API
+    const response = await fetch("http://127.0.0.1:8000/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: req.body.notes })
+    });
+
+
+    const data: any = await response.json();
+    const result: any = await data
+
+    if (!response.ok) {
+        return next(new ErrorResponse(500, "Prediction API failed"));
     }
 
-    const userMood = await UserMood.create({ ...req.body, userId: req.user.id })
-    return res.status(200).json(new SuccessResponse(true, 'User mood entry has been added successfully', userMood))
-})
+    // Save prediction
+    console.log(`prediction ${result.mental_state}`)
+    userMood['prediction'] = result.mental_state;
+
+    console.log(userMood)
+    await userMood.save();
+
+    return res.status(200).json(
+        new SuccessResponse(true, "User mood entry added", userMood)
+    );
+});
 
 /* 
     @desc       Update user mood entry

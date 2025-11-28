@@ -18,6 +18,9 @@ const userMoodSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    prediction: {
+        type: String
+    },
     isActive: {
         type: Boolean,
         default: true

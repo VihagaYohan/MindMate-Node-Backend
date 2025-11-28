@@ -38,7 +38,7 @@ const resourceSchemaValidation = (resource: any) => {
             "string.required": "Resource name is a required field",
             "any.only": "Resource should be one of [video, article, document]"
         }),
-        resourceUrl: Joi.string().pattern(new RegExp("\b((https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/[^\s]*)?)\b")).required().messages({
+        resourceUrl: Joi.string().uri({ scheme: ['http', 'https'] }).required().messages({
             'string.base': 'URL must be a string.',
             'string.empty': 'URL cannot be empty.',
             'string.uri': 'Please provide a valid web URL (must start with http or https).',
