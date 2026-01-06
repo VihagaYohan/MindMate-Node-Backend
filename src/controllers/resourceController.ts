@@ -11,33 +11,37 @@ const { Resource, resourceSchemaValidation } = ResourceSchema
     @access     Private
 */
 export const getAllResources = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    // extract query params
-    const page = parseInt(req.query.page as string, 10) || 1
-    const limit = parseInt(req.query.limit as string, 10) || 10
-    const categoryId = parseInt(req.query.categoryId as string)
-    const resourceType = req.query.type
+    /*     // extract query params
+        const page = parseInt(req.query.page as string, 10) || 1
+        const limit = parseInt(req.query.limit as string, 10) || 10
+        const categoryId = parseInt(req.query.categoryId as string)
+        const resourceType = req.query.type
+    
+        // query filter
+        const filter = {
+            categoryId: categoryId,
+            resourceType: resourceType,
+            isActive: true
+        }
+    
+        // count total results for pagination
+        const total = await Resource.countDocuments(filter)
+    
+        // fetch paginated results
+        const resources = await Resource.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit)
+    
+        const respondObj = {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+            data: resources
+        }
+    
+        res.status(200).json(new SuccessResponse(true, "Resources has been fetched successfully", respondObj)) */
 
-    // query filter
-    const filter = {
-        categoryId: categoryId,
-        resourceType: resourceType,
-        isActive: true
-    }
+    const resources = await Resource.find().sort({ createdAt: -1 })
 
-    // count total results for pagination
-    const total = await Resource.countDocuments(filter)
-
-    // fetch paginated results
-    const resources = await Resource.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit)
-
-    const respondObj = {
-        currentPage: page,
-        totalPages: Math.ceil(total / limit),
-        totalItems: total,
-        data: resources
-    }
-
-    res.status(200).json(new SuccessResponse(true, "Resources has been fetched successfully", respondObj))
+    res.status(200).json(new SuccessResponse(true, "Resources has been fetched successfully", resources))
 })
 
 /* 

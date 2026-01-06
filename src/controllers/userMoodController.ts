@@ -23,23 +23,34 @@ export const getAllUserMoods = AsyncHandler(async (req: Request, res: Response, 
 
     // extract query params
     const page = parseInt(req.query.page as string, 10) || 1
-    const limit = parseInt(req.query.limi as string, 10) || 10
+    const limit = parseInt(req.query.limit as string, 10) || 10
+
+    let filter = {}
 
     // handle optional date query
-    const dateParam = req.query.date ? new Date(Number(req.query.date)) : new Date();
+    if (req.query.date) {
+        const dateParam = req.query.date ? new Date(Number(req.query.date)) : new Date();
+        console.log(dateParam)
 
-    // create date range (start and end of the given day)
-    const startOfDay = new Date(dateParam);
-    startOfDay.setHours(0, 0, 0, 0);
+        // create date range (start and end of the given day)
+        const startOfDay = new Date(dateParam);
+        startOfDay.setHours(0, 0, 0, 0);
 
-    const endOfDay = new Date(dateParam);
-    endOfDay.setHours(23, 59, 59, 999);
+        const endOfDay = new Date(dateParam);
+        endOfDay.setHours(23, 59, 59, 999);
 
-    // query filter
-    const filter = {
-        userId: new Types.ObjectId(userId),
-        createdAt: { $gte: startOfDay, $lte: endOfDay },
-        isActive: true
+        // query filter
+        filter = {
+            userId: new Types.ObjectId(userId),
+            createdAt: { $gte: startOfDay, $lte: endOfDay },
+            isActive: true
+        }
+    } else {
+        filter = {
+            userId: new Types.ObjectId(userId),
+            //createdAt: { $gte: startOfDay, $lte: endOfDay },
+            isActive: true
+        }
     }
 
     // count total results for pagination

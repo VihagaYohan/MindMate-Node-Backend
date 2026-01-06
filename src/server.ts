@@ -23,6 +23,7 @@ import profiles from './routes/profile'
 import contactPerson from './routes/contactPerson'
 import userMood from './routes/userMood'
 import resources from './routes/resource'
+import seed from './routes/seed'
 
 // import middleware
 import errorHandler from './middleware/errorHandler'
@@ -34,6 +35,7 @@ app.use('/api/v1/profiles', profiles)
 app.use('/api/v1/contact-persons', contactPerson)
 app.use('/api/v1/user-moods', userMood)
 app.use('/api/v1/resources', resources)
+app.use('/api/v1/seed', seed)
 
 // register middleware
 app.use(errorHandler)

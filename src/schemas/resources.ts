@@ -16,6 +16,9 @@ const resourcesSchema = new mongoose.Schema({
     thumbnail: {
         type: String
     },
+    title: {
+        type: String
+    },
     description: {
         type: String,
     },
@@ -49,6 +52,9 @@ const resourceSchemaValidation = (resource: any) => {
             .messages({
                 'string.uri': 'Thumbnail must be a valid URL.'
             }),
+        title: Joi.string().min(5).messages({
+            'string.min': "Title cannot should be atleast 5 characters long"
+        }),
         description: Joi.string()
             .min(50)
             .optional()
