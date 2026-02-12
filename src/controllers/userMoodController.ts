@@ -5,6 +5,7 @@ import { ErrorResponse, SuccessResponse } from '../shared/response'
 import { Types } from 'mongoose'
 import fetch from 'node-fetch'
 import mongoose from 'mongoose'
+import { number, string } from 'joi'
 
 
 const { UserMood, userMoodSchemaValidation } = UserMoodSchema
@@ -18,7 +19,7 @@ export const getAllUserMoods = AsyncHandler(async (req: Request, res: Response, 
     const userId = req.user.id
     // check for unauthorized user id
     if (!userId) {
-        return next(new ErrorResponse(400, "Unauthorized access deined. user id not found"))
+        return next(new ErrorResponse(400, "Unauthorized access deined. User id not found"))
     }
 
     // extract query params
@@ -71,6 +72,67 @@ export const getAllUserMoods = AsyncHandler(async (req: Request, res: Response, 
 })
 
 /* 
+    @desc       Get user mood stats based on given period
+    @routes     GET /api/v1/user-mood/stats/:id
+    @access     Private
+*/
+export const getUserMoodStat = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.user.id;
+    // check for unauthorized user id
+    if (!userId) {
+        return next(new ErrorResponse(400, "Unauthorized access deined. User id not found"))
+    }
+
+    // extract query params
+    let filter = {}
+
+    const dateParam = req.query.date ? new Date(Number(req.query.date)) : new Date('2025-11-29')
+    console.log(dateParam)
+
+    // create date range (start and end of the given day)
+    const startOfDay = new Date(dateParam);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(dateParam);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // query filter
+    filter = {
+        userId: new Types.ObjectId(userId),
+        createdAt: { $gte: startOfDay, $lte: endOfDay },
+        isActive: true
+    }
+
+    // Sort by createdAt in ascending order (earliest first)
+    const allStats = await UserMood.find(filter).sort({ createdAt: 1 })
+
+    interface GraphData {
+        value: number;
+        label: string;
+    }
+
+    const formattedData: GraphData[] = []
+
+    allStats.map(item => {
+        const label = new Date(item.createdAt).toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        })
+        const payload: GraphData = {
+            value: item.level,
+            label: label
+        }
+
+        formattedData.push(payload)
+    })
+
+    res.status(200).json(new SuccessResponse(true, "User mood stats fetch successfully", formattedData))
+
+})
+
+
+/* 
     @desc       Add user mood entry
     @routes     POST /api/v1/user-mood
     @access     Private
@@ -78,6 +140,8 @@ export const getAllUserMoods = AsyncHandler(async (req: Request, res: Response, 
 export const addUserMood = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const { error } = userMoodSchemaValidation(req.body);
     if (error) return next(new ErrorResponse(400, error.details[0].message));
+
+    console.log(req.body, req.user.id)
 
     // Create mood entry first
     let userMood: any = await UserMood.create({ ...req.body, userId: req.user.id });

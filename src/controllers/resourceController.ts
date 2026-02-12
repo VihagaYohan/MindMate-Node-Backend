@@ -11,34 +11,6 @@ const { Resource, resourceSchemaValidation } = ResourceSchema
     @access     Private
 */
 export const getAllResources = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    /*     // extract query params
-        const page = parseInt(req.query.page as string, 10) || 1
-        const limit = parseInt(req.query.limit as string, 10) || 10
-        const categoryId = parseInt(req.query.categoryId as string)
-        const resourceType = req.query.type
-    
-        // query filter
-        const filter = {
-            categoryId: categoryId,
-            resourceType: resourceType,
-            isActive: true
-        }
-    
-        // count total results for pagination
-        const total = await Resource.countDocuments(filter)
-    
-        // fetch paginated results
-        const resources = await Resource.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit)
-    
-        const respondObj = {
-            currentPage: page,
-            totalPages: Math.ceil(total / limit),
-            totalItems: total,
-            data: resources
-        }
-    
-        res.status(200).json(new SuccessResponse(true, "Resources has been fetched successfully", respondObj)) */
-
     const resources = await Resource.find().sort({ createdAt: -1 })
 
     res.status(200).json(new SuccessResponse(true, "Resources has been fetched successfully", resources))
@@ -51,8 +23,18 @@ export const getAllResources = AsyncHandler(async (req: Request, res: Response, 
 */
 export const getResource = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const resources = await Resource.findById(req.params.id)
-
     return res.status(200).json(new SuccessResponse(true, `Resource has been fetched successfully for the given id ${req.params.id}`, resources),)
+})
+
+
+/* 
+    @desc       Get resource category id
+    @route      GET /api/v1/resources?categoryId=id
+    @access     Private
+*/
+export const getResourcesByCategoryId = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const resources = await Resource.find({ categoryId: req.query.categoryId })
+    return res.status(200).json(new SuccessResponse(true, `Resources have been fetched succesfully for the given category id ${req.query.id}`, resources))
 })
 
 

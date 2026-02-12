@@ -1,5 +1,5 @@
 import express from 'express'
-import { getAllResources, getResource, addResource, updateResource, deleteResource } from '../controllers/resourceController'
+import { getAllResources, getResource, addResource, updateResource, deleteResource, getResourcesByCategoryId } from '../controllers/resourceController'
 import { AuthHandler } from '../middleware'
 
 const router = express.Router()
@@ -7,6 +7,9 @@ const router = express.Router()
 router.route('/')
     .get(AuthHandler, getAllResources)
     .post(AuthHandler, addResource)
+
+router.route('/category')
+    .get(AuthHandler, getResourcesByCategoryId)
 
 router.route('/:id')
     .get(AuthHandler, getResource)

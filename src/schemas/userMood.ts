@@ -11,7 +11,7 @@ const userMoodSchema = new mongoose.Schema({
     },
     description: {
         type: String,
-        enum: ['sad', 'netural', 'happy'],
+        enum: ['sad', 'neutral', 'happy'],
         required: true
     },
     notes: {
